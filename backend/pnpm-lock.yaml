@@ -184,8 +184,8 @@ importers:
         specifier: ^8.35.0
         version: 8.35.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: ^4.1.2
+        version: 4.1.2
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
@@ -205,8 +205,8 @@ importers:
         specifier: ^5.5.0
         version: 5.5.0(@types/eslint@9.6.1)(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.4.2)))(eslint@9.29.0(jiti@2.4.2))(prettier@3.6.1)
       gradient-string:
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: ^2.0.1
+        version: 2.0.2
       jest:
         specifier: 30.0.3
         version: 30.0.3(@types/node@24.0.4)(esbuild-register@3.6.0(esbuild@0.25.2))(ts-node@10.9.2(@types/node@24.0.4)(typescript@5.8.3))
@@ -2722,9 +2722,9 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  gradient-string@3.0.0:
-    resolution: {integrity: sha512-frdKI4Qi8Ihp4C6wZNB565de/THpIaw3DjP5ku87M+N9rNSGmPTjfkq61SdRXB7eCaL8O1hkKDvf6CDMtOzIAg==}
-    engines: {node: '>=14'}
+  gradient-string@2.0.2:
+    resolution: {integrity: sha512-rEDCuqUQ4tbD78TpzsMtt5OIf0cBCSDWSJtUDaF6JsAh+k0v9r++NzxNEG87oDZx9ZwGhD8DaezR2L/yrw0Jdw==}
+    engines: {node: '>=10'}
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
@@ -7362,9 +7362,9 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  gradient-string@3.0.0:
+  gradient-string@2.0.2:
     dependencies:
-      chalk: 5.4.1
+      chalk: 4.1.2
       tinygradient: 1.1.5
 
   graphemer@1.4.0: {}
