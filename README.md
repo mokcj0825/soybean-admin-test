@@ -120,7 +120,7 @@ docker-compose -p soybean-admin-nest up -d
 
 启动后即可访问：
 
-- 前端页面：`http://localhost:9527`
+- 前端页面：`http://localhost:9529`
 - 后端接口：`http://localhost:9528/v1`
 - Swagger文档：`http://127.0.0.1:9528/api-docs`
 
@@ -186,7 +186,7 @@ cd frontend
 pnpm dev
 ```
 
-访问 `http://localhost:9527` 查看运行结果。
+访问 `http://localhost:9529` 查看运行结果。
 
 ### 开发说明
 
