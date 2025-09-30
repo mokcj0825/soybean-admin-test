@@ -19,7 +19,7 @@ export class RequestDto {
 
   @ApiProperty({description: 'This is another description for your request parameter'})
   @IsString({message: 'This parameter must be string'})
-  compulsoryString?: String;
+  compulsoryString: String;
 }
 ```
 In this case, your request will be expected as:
@@ -41,7 +41,7 @@ export class YourOperationService {
 
   async serviceAction(inputDto: YourInputDto): Promise<YourOutputDto> {
     console.log('inputDto', inputDto);
-    await new Promise((resolve) => setTImeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     return new YourOutputDto();
   }
 }
