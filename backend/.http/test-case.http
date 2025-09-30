@@ -1,0 +1,11 @@
+@host = http://localhost:9528
+# @name Create task
+POST {{host}}/v1/task/create
+Content-Type: application/json
+
+{
+  "title": "Finish project report",
+  "description": "Compile the final draft for submission",
+  "priority": "high",
+  "dueDate": "2025-10-15T12:00:00Z"
+}
