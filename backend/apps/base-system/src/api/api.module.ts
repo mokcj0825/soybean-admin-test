@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { PagelessInfraModule } from '@app/base-system/infra/bounded-contexts/_example/pageless.infra.module';
 import { AccessKeyInfraModule } from '@app/base-system/infra/bounded-contexts/access-key/access_key.infra.module';
 import { ApiEndpointInfraModule } from '@app/base-system/infra/bounded-contexts/api-endpoint/api-endpoint/api-endpoint.infra.module';
 import { IamModule } from '@app/base-system/infra/bounded-contexts/iam/authentication/iam.module';
@@ -10,6 +11,7 @@ import { TokensInfraModule } from '@app/base-system/infra/bounded-contexts/iam/t
 import { LoginLogInfraModule } from '@app/base-system/infra/bounded-contexts/log-audit/login-log/login-log.infra.module';
 import { OperationLogInfraModule } from '@app/base-system/infra/bounded-contexts/log-audit/operation-log/operation-log.infra.module';
 
+import { Controllers as PagelessRest } from './_example/rest';
 import { Controllers as AccessKeyRest } from './access-key/rest';
 import { Controllers as EndpointRest } from './endpoint/rest';
 import { Controllers as IamRest } from './iam/rest';
@@ -27,6 +29,7 @@ import { Controllers as OperationLogRest } from './log-audit/operation-log/rest'
     LoginLogInfraModule,
     TokensInfraModule,
     AccessKeyInfraModule,
+    PagelessInfraModule,
   ],
   controllers: [
     ...IamRest,
@@ -34,6 +37,7 @@ import { Controllers as OperationLogRest } from './log-audit/operation-log/rest'
     ...LoginLogRest,
     ...OperationLogRest,
     ...AccessKeyRest,
+    ...PagelessRest,
   ],
 })
 export class ApiModule {}

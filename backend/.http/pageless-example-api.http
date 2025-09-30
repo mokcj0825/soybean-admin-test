@@ -1,0 +1,10 @@
+@host=http://localhost:9528
+
+# @name Pageless example
+POST {{host}}/v1/pageless-example/exampleAction
+Content-Type: application/json
+
+{
+  "optionalString": "String",
+  "compulsoryString": "String"
+}
