@@ -19,6 +19,7 @@
     "prisma:migrate:create": "prisma migrate dev --name auto --create-only",
     "prisma:status": "prisma migrate status",
     "prisma:migrations:remove-old-baseline": "sh -c 'rm -rf prisma/migrations/99999999999999_baseline'",
+    "prisma:migrate:diff": "sh -c 'ts=20251001163805_auto; mkdir -p prisma/migrations/; prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations//migration.sql'",
     "prisma:update": "prisma migrate dev --name auto && prisma generate",
     "prisma:studio": "prisma studio",
     "start": "nest start base-system",
@@ -32,7 +33,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/base-system/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/base-system/test/jest-e2e.json",
+    "prisma:resolve:applied": "sh -c 'prisma migrate resolve --applied \"\"'",
+    "prisma:resolve:rb": "sh -c 'prisma migrate resolve --rolled-back \"\"'"
   },
   "dependencies": {
     "@fastify/compress": "^8.0.3",
