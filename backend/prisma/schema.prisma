@@ -237,9 +237,28 @@ model SysAccessKey {
   AccessKeyID     String   @unique @map("access_key_id")
   AccessKeySecret String   @unique @map("access_key_secret")
   status          Status
-  description String?
+  description     String?
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String   @map("created_by")
 
   @@map("sys_access_key")
+}
+
+model ExamQuestion {
+  id        Int      @id @default(autoincrement())
+  question  String   @db.VarChar(500)
+  options   Json
+  answer    String   @db.VarChar(10)
+  score     Decimal  @db.Decimal(5, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([question])
+  @@index([answer])
+  @@index([createdAt])
+  @@map("exam_question")
+}
+
+model Test {
+  id          Int    @id @default(autoincrement())
+  description String @db.VarChar(100)
 }
