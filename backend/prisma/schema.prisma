@@ -229,3 +229,22 @@ enum MenuType {
   directory
   menu
 }
+
+model ExamRecord {
+  id        BigInt     @id @default(autoincrement())
+  studentID BigInt     @map("student_id")
+  examID    BigInt     @map("exam_id")
+  subject   String     @db.VarChar(100)
+  score     Decimal    @db.Decimal(5, 2)
+  examDate  DateTime   @map("exam_date")
+  status    ExamStatus
+
+  @@unique([studentID, examID])
+  @@map("exam_record")
+}
+
+enum ExamStatus {
+  passed
+  failed
+  absent
+}
