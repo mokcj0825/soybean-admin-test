@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
@@ -36,7 +30,6 @@ model SysTokens {
   @@map("sys_tokens")
 }
 
-// 用户表
 model SysUser {
   id          String    @id
   username    String    @unique
@@ -56,13 +49,6 @@ model SysUser {
   @@map("sys_user")
 }
 
-enum Status {
-  ENABLED
-  DISABLED
-  BANNED
-}
-
-// casbin_rule
 model CasbinRule {
   id    Int     @id @default(autoincrement())
   ptype String
@@ -76,7 +62,6 @@ model CasbinRule {
   @@map("casbin_rule")
 }
 
-// domain 租户/域
 model SysDomain {
   id          String    @id
   code        String    @unique
@@ -91,7 +76,6 @@ model SysDomain {
   @@map("sys_domain")
 }
 
-// 角色表
 model SysRole {
   id          String    @id
   code        String    @unique
@@ -115,7 +99,6 @@ model SysUserRole {
   @@map("sys_user_role")
 }
 
-// 接口资源表
 model SysEndpoint {
   id         String    @id
   path       String
@@ -130,7 +113,6 @@ model SysEndpoint {
   @@map("sys_endpoint")
 }
 
-// 组织机构
 model SysOrganization {
   id          String    @id
   code        String    @unique
@@ -187,37 +169,30 @@ model SysOperationLog {
   @@map("sys_operation_log")
 }
 
-enum MenuType {
-  directory
-  menu
-}
-
 model SysMenu {
-  id        Int      @id @default(autoincrement())
-  menuType  MenuType @map("menu_type")
-  menuName  String   @map("menu_name") @db.VarChar(64)
-  iconType  Int?     @default(1) @map("icon_type")
-  icon      String?  @map("icon") @db.VarChar(64)
-  routeName String   @unique @map("route_name") @db.VarChar(64)
-  routePath String   @map("route_path") @db.VarChar(128)
-  component String   @map("component") @db.VarChar(64)
-  pathParam String?  @map("path_param") @db.VarChar(64)
-  status    Status
-
-  activeMenu String?  @map("active_menu") @db.VarChar(64)
-  hideInMenu Boolean? @default(false) @map("hide_in_menu")
-  pid        Int      @default(0)
-  order      Int      @map("sequence")
-  i18nKey    String?  @map("i18n_key") @db.VarChar(64)
-  keepAlive  Boolean? @default(false) @map("keep_alive")
-  constant   Boolean  @default(false)
-  href       String?  @map("href") @db.VarChar(64)
-  multiTab   Boolean? @default(false) @map("multi_tab")
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  createdBy String    @map("created_by")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-  updatedBy String?   @map("updated_by")
+  id         Int       @id @default(autoincrement())
+  menuType   MenuType  @map("menu_type")
+  menuName   String    @map("menu_name") @db.VarChar(64)
+  iconType   Int?      @default(1) @map("icon_type")
+  icon       String?   @map("icon") @db.VarChar(64)
+  routeName  String    @unique @map("route_name") @db.VarChar(64)
+  routePath  String    @map("route_path") @db.VarChar(128)
+  component  String    @map("component") @db.VarChar(64)
+  pathParam  String?   @map("path_param") @db.VarChar(64)
+  status     Status
+  activeMenu String?   @map("active_menu") @db.VarChar(64)
+  hideInMenu Boolean?  @default(false) @map("hide_in_menu")
+  pid        Int       @default(0)
+  order      Int       @map("sequence")
+  i18nKey    String?   @map("i18n_key") @db.VarChar(64)
+  keepAlive  Boolean?  @default(false) @map("keep_alive")
+  constant   Boolean   @default(false)
+  href       String?   @map("href") @db.VarChar(64)
+  multiTab   Boolean?  @default(false) @map("multi_tab")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  createdBy  String    @map("created_by")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  updatedBy  String?   @map("updated_by")
 
   @@map("sys_menu")
 }
@@ -242,4 +217,15 @@ model SysAccessKey {
   createdBy       String   @map("created_by")
 
   @@map("sys_access_key")
+}
+
+enum Status {
+  ENABLED
+  DISABLED
+  BANNED
+}
+
+enum MenuType {
+  directory
+  menu
 }
