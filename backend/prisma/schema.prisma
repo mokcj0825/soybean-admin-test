@@ -243,22 +243,3 @@ model SysAccessKey {
 
   @@map("sys_access_key")
 }
-
-model ExamQuestion {
-  id        Int      @id @default(autoincrement())
-  question  String   @db.VarChar(500)
-  options   Json
-  answer    String   @db.VarChar(10)
-  score     Decimal  @db.Decimal(5, 2)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([question])
-  @@index([answer])
-  @@index([createdAt])
-  @@map("exam_question")
-}
-
-model Test {
-  id          Int    @id @default(autoincrement())
-  description String @db.VarChar(100)
-}
