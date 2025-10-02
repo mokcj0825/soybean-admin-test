@@ -219,17 +219,6 @@ model SysAccessKey {
   @@map("sys_access_key")
 }
 
-enum Status {
-  ENABLED
-  DISABLED
-  BANNED
-}
-
-enum MenuType {
-  directory
-  menu
-}
-
 model ExamRecord {
   id        BigInt     @id @default(autoincrement())
   studentID BigInt     @map("student_id")
@@ -241,6 +230,17 @@ model ExamRecord {
 
   @@unique([studentID, examID])
   @@map("exam_record")
+}
+
+enum Status {
+  ENABLED
+  DISABLED
+  BANNED
+}
+
+enum MenuType {
+  directory
+  menu
 }
 
 enum ExamStatus {
