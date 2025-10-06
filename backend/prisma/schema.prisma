@@ -237,7 +237,7 @@ model SysAccessKey {
   AccessKeyID     String   @unique @map("access_key_id")
   AccessKeySecret String   @unique @map("access_key_secret")
   status          Status
-  description String?
+  description     String?
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String   @map("created_by")
 

@@ -17,7 +17,7 @@ FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /usr/src/app/soybean/backend
 
 # 生产部署可注释
-RUN apk --no-cache add curl
+RUN apk --no-cache add curl make
 # Install pnpm.
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm@${PNPM_VERSION} pm2
@@ -48,6 +48,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 # Copy the rest of the source files into the image.
 COPY . .
+# Make scripts executable
+RUN chmod +x scripts/*.sh || true
 # Run the build script.
 RUN pnpm prisma:generate && pnpm build
 
@@ -75,6 +77,9 @@ COPY package.json .
 COPY --from=build /usr/src/app/soybean/backend/node_modules ./node_modules
 COPY --from=build /usr/src/app/soybean/backend/dist ./dist
 COPY ./ecosystem.config.js ./ecosystem.config.js
+
+# 注意：不复制 prisma 目录和 Makefile，完全依赖 docker-compose 的 volume 挂载
+# 这样确保容器始终使用宿主机的最新文件
 
 
 # Expose the port that the application listens on.
