@@ -6,12 +6,30 @@ services:
     environment:
       # 同 backend 的环境变量
       DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
+      DIRECT_DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      # 挂载 prisma 目录以使用最新的 schema 和迁移文件
+      - ./backend/prisma:/usr/src/app/soybean/backend/prisma
+    restart: "no"
     command: >
       sh -c "
-        pnpm prisma migrate deploy &&
+        if pnpm prisma migrate deploy 2>&1 | tee /tmp/migrate.log | grep -q 'P3005'; then
+          echo '检测到数据库已有数据但缺少迁移记录，正在修复...'
+          for migration in prisma/migrations/*/; do
+            if [ -d \"$$migration\" ] && [ \"$$(basename $$migration)\" != \"migration_lock.toml\" ]; then
+              migration_name=$$(basename $$migration)
+              echo \"标记迁移为已应用: $$migration_name\"
+              pnpm prisma migrate resolve --applied \"$$migration_name\" || true
+            fi
+          done
+          echo '重新应用迁移...'
+          pnpm prisma migrate deploy
+        elif grep -q 'No pending migrations' /tmp/migrate.log || grep -q 'migrations found' /tmp/migrate.log; then
+          echo '迁移已完成'
+        fi &&
         pnpm prisma db seed
       "
     networks:
@@ -43,6 +61,7 @@ services:
       DOC_SWAGGER_ENABLE: "true"
       DOC_SWAGGER_PATH: "api-docs"
       DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
+      DIRECT_DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
       REDIS_HOST: "redis"
       REDIS_PORT: 6379
       REDIS_PASSWORD: "123456"
@@ -58,6 +77,11 @@ services:
         condition: service_healthy
     ports:
       - "9528:9528"
+    volumes:
+      # 挂载 prisma 目录以支持 schema 变更
+      - ./backend/prisma:/usr/src/app/soybean/backend/prisma
+      - ./backend/Makefile:/usr/src/app/soybean/backend/Makefile
+      - ./backend/scripts:/usr/src/app/soybean/backend/scripts
     networks:
       - soybean-admin
     healthcheck:

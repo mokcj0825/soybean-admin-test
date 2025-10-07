@@ -1,7 +1,7 @@
 # Prisma 数据库模式文件路径
 SCHEMA_PATH = prisma/schema.prisma
-# 存储时间戳的临时文件
-TIMESTAMP_FILE = timestamp.txt
+# 存储时间戳的临时文件（放在 prisma 目录下，volume 挂载有写权限）
+TIMESTAMP_FILE = prisma/.timestamp.txt
 # 迁移文件目录路径，使用时间戳命名
 MIGRATION_DIR = prisma/migrations/$(shell cat $(TIMESTAMP_FILE))_migration
 # 迁移 SQL 文件的具体路径
@@ -21,13 +21,11 @@ check_timestamp:
 		date +%Y%m%d%H%M%S > $(TIMESTAMP_FILE); \
 	fi
 
-# 生成数据库迁移文件
-# 1. 首先检查时间戳
-# 2. 创建迁移目录
-# 3. 使用 prisma migrate diff 生成迁移脚本，从空数据库到当前 schema
-generate_migration: check_timestamp
-	mkdir -p $(MIGRATION_DIR)
-	npx prisma migrate diff --from-empty --to-schema-datamodel $(SCHEMA_PATH) --script > $(MIGRATION_PATH)
+# 生成迁移文件（使用脚本自动生成 SQL）
+generate_migration:
+	@sh scripts/generate-migration.sh $(SCHEMA_PATH)
+	@echo ""
+	@echo "完成后执行: make deploy_migration"
 
 # 标记迁移已应用
 # 用于手动标记某个迁移已经被应用到数据库
@@ -37,7 +35,14 @@ resolve_migration: check_timestamp
 # 部署迁移
 # 将所有未应用的迁移应用到数据库
 deploy_migration:
+	@echo "========================================"
+	@echo "应用所有待处理的迁移到数据库"
+	@echo "========================================"
 	npx prisma migrate deploy --schema $(SCHEMA_PATH)
+	@if [ -f $(TIMESTAMP_FILE) ]; then rm -f $(TIMESTAMP_FILE); fi
+	@echo "========================================"
+	@echo "迁移已成功应用到数据库"
+	@echo "========================================"
 
 # 重置数据库
 # 删除所有数据并重新应用所有迁移
