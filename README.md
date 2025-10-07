@@ -142,12 +142,48 @@ soybean-admin-nestjs/
 
 ### Docker 方式（推荐）
 
-#### 1. 启动项目
+#### 1. 配置环境变量（可选）
+
+项目支持通过环境变量自定义配置。如果需要修改默认配置（如端口号、数据库密码等），可以选择以下任一方式：
+
+**方式 A：使用自动生成脚本（推荐）**
+
+```bash
+# Linux/macOS
+./generate-env.sh
+
+# Windows
+generate-env.bat
+
+# 脚本提供三种模式：
+# 1. 使用默认配置（快速开始）
+# 2. 交互式配置（自定义端口和密码）
+# 3. 直接复制示例文件
+```
+
+**方式 B：手动创建配置文件**
+
+```bash
+# 复制环境变量示例文件
+cp env.docker.example .env
+
+# 编辑 .env 文件，修改需要的配置项
+# 例如：修改 DATABASE_PORT=25432 为其他端口
+```
+
+**重要提示**：
+- 如果不创建 `.env` 文件，docker-compose 会使用默认值
+- `.env` 文件会被 git 忽略，不会提交到仓库
+- 所有可配置的参数见 `env.docker.example` 文件
+
+#### 2. 启动项目
 
 ```bash
 # 一键启动所有服务（前端、后端、数据库、Redis）
-docker-compose -p soybean-admin-nest up -d
+docker-compose up -d
 ```
+
+> **💡 提示**：无需手动指定 `-p` 参数，项目名称已在 `.env` 文件中通过 `COMPOSE_PROJECT_NAME` 配置。
 
 首次启动会自动完成：
 - ✅ 构建 Docker 镜像
@@ -158,7 +194,7 @@ docker-compose -p soybean-admin-nest up -d
 - ✅ 启动后端服务
 - ✅ 启动前端服务
 
-#### 2. 访问应用
+#### 3. 访问应用
 
 启动完成后（约 1-2 分钟），访问：
 
@@ -166,22 +202,24 @@ docker-compose -p soybean-admin-nest up -d
 - **后端 API**：http://localhost:9528/v1
 - **API 文档**：http://localhost:9528/api-docs
 
-#### 3. 默认账号
+> **提示**：如果你修改了 `.env` 中的端口配置，请使用对应的端口访问。
+
+#### 4. 默认账号
 
 - 用户名：`admin`
 - 密码：（请查看初始化日志或种子文件）
 
-#### 4. 停止项目
+#### 5. 停止项目
 
 ```bash
 # 停止所有服务（保留数据）
-docker-compose -p soybean-admin-nest stop
+docker-compose stop
 
 # 停止并删除容器（保留数据）
-docker-compose -p soybean-admin-nest down
+docker-compose down
 
 # 停止并删除所有数据（包括数据库）
-docker-compose -p soybean-admin-nest down -v
+docker-compose down -v
 ```
 
 ### 手动安装方式
@@ -259,16 +297,16 @@ pnpm dev
 # 例如：在 SysUser 模型中添加 department 字段
 
 # 步骤 2：生成迁移文件（脚本自动生成增量 SQL）
-docker-compose -p soybean-admin-nest exec backend make generate_migration
+docker-compose exec backend make generate_migration
 
 # 步骤 3：应用迁移到数据库
-docker-compose -p soybean-admin-nest exec backend make deploy_migration
+docker-compose exec backend make deploy_migration
 
 # 步骤 4：重新构建 backend（生成新的 Prisma 客户端）
-docker-compose -p soybean-admin-nest build backend
+docker-compose build backend
 
 # 步骤 5：重启 backend 服务
-docker-compose -p soybean-admin-nest up -d backend
+docker-compose up -d backend
 ```
 
 #### 流程说明
@@ -290,20 +328,20 @@ docker-compose -p soybean-admin-nest up -d backend
 # 在 SysUser 模型中添加：department String?
 
 # 2. 生成迁移
-docker-compose -p soybean-admin-nest exec backend make generate_migration
+docker-compose exec backend make generate_migration
 # 输出：迁移文件已生成: prisma/migrations/20240315123456_migration/migration.sql
 # 文件内容预览：
 # ALTER TABLE "sys_user" ADD COLUMN "department" TEXT;
 
 # 3. 应用迁移
-docker-compose -p soybean-admin-nest exec backend make deploy_migration
+docker-compose exec backend make deploy_migration
 # 输出：迁移已成功应用到数据库
 
 # 4. 重新构建
-docker-compose -p soybean-admin-nest build backend
+docker-compose build backend
 
 # 5. 重启服务
-docker-compose -p soybean-admin-nest up -d backend
+docker-compose up -d backend
 
 # 完成！新字段已添加，现有数据完全保留
 ```
@@ -343,6 +381,70 @@ pnpm prisma:generate
 
 ## 配置说明
 
+### Docker Compose 环境变量配置
+
+项目支持通过 `.env` 文件自定义 Docker Compose 的配置。这让你可以灵活地修改端口、密码等配置，而无需直接编辑 `docker-compose.yml`。
+
+#### 配置步骤
+
+1. **复制示例文件**：
+   ```bash
+   cp env.docker.example .env
+   ```
+
+2. **编辑配置**：
+   打开 `.env` 文件，根据需要修改配置项。所有配置都有默认值，只需修改你想改变的项。
+
+3. **重启服务**：
+   ```bash
+   docker-compose down
+   docker-compose up -d
+   ```
+
+#### 可配置参数
+
+| 参数名称 | 默认值 | 说明 |
+|---------|-------|------|
+| `DATABASE_PORT` | 25432 | PostgreSQL 对外映射端口 |
+| `DATABASE_USER` | soybean | 数据库用户名 |
+| `DATABASE_PASSWORD` | soybean@123. | 数据库密码 |
+| `DATABASE_NAME` | soybean-admin-nest-backend | 数据库名称 |
+| `REDIS_PORT` | 26379 | Redis 对外映射端口 |
+| `REDIS_PASSWORD` | 123456 | Redis 密码 |
+| `APP_PORT` | 9528 | 后端服务端口 |
+| `FRONTEND_PORT` | 9527 | 前端服务端口 |
+| `JWT_SECRET` | JWT_SECRET-soybean-admin-nest@123456!@#. | JWT 密钥 |
+| `JWT_EXPIRE_IN` | 3600 | JWT 过期时间（秒） |
+
+完整的配置参数列表请参考 `env.docker.example` 文件。
+
+> 📖 **详细文档**：查看 [Docker 环境变量配置指南](DOCKER_ENV_CONFIG.md) 了解更多配置细节、使用场景和故障排查。
+
+#### 配置示例
+
+**示例 1：修改数据库端口**
+```env
+# .env
+DATABASE_PORT=15432
+```
+
+**示例 2：修改所有端口（避免冲突）**
+```env
+# .env
+DATABASE_PORT=15432
+REDIS_PORT=16379
+APP_PORT=8528
+FRONTEND_PORT=8527
+```
+
+**示例 3：修改密码（生产环境）**
+```env
+# .env
+DATABASE_PASSWORD=your_strong_password_here
+REDIS_PASSWORD=your_redis_password_here
+JWT_SECRET=your_jwt_secret_key_here
+```
+
 ### 后端配置
 
 所有配置文件位于 `backend/libs/config/src/`：
@@ -355,20 +457,14 @@ pnpm prisma:generate
 | `app.config.ts` | 应用基础配置 |
 | `swagger.config.ts` | API 文档配置 |
 
-### 环境变量
+### 本地开发环境变量
 
-支持多环境配置：
-
-- `.env` - 开发环境（Git 忽略）
-- `.env.production` - 生产环境（需自行创建）
-- `.env.test` - 测试环境（需自行创建）
-
-主要环境变量：
+如果不使用 Docker，手动安装时需要配置 `backend/.env`：
 
 ```env
-# 数据库
-DATABASE_URL="postgresql://user:password@host:5432/database?schema=public"
-DIRECT_DATABASE_URL="postgresql://user:password@host:5432/database?schema=public"
+# 数据库（注意：host 使用 localhost）
+DATABASE_URL="postgresql://user:password@localhost:5432/database?schema=public"
+DIRECT_DATABASE_URL="postgresql://user:password@localhost:5432/database?schema=public"
 
 # Redis
 REDIS_HOST="localhost"
@@ -394,8 +490,8 @@ APP_PORT=9528
 **解决方案**：
 ```bash
 # 完全清理并重新启动
-docker-compose -p soybean-admin-nest down -v
-docker-compose -p soybean-admin-nest up -d
+docker-compose down -v
+docker-compose up -d
 ```
 
 ### 2. 数据库迁移错误
@@ -407,7 +503,7 @@ docker-compose -p soybean-admin-nest up -d
 2. 检查 `backend/prisma/migrations/` 是否有空文件夹或错误的迁移文件
 3. 查看迁移记录：
 ```bash
-docker-compose -p soybean-admin-nest exec postgres psql -U soybean -d soybean-admin-nest-backend -c "SELECT * FROM _prisma_migrations;"
+docker-compose exec postgres psql -U soybean -d soybean-admin-nest-backend -c "SELECT * FROM _prisma_migrations;"
 ```
 
 **解决方案**：
@@ -419,20 +515,28 @@ docker-compose -p soybean-admin-nest exec postgres psql -U soybean -d soybean-ad
 **问题**：前端页面显示网络错误
 
 **检查步骤**：
-1. 确认后端服务正常运行：`docker-compose -p soybean-admin-nest ps`
+1. 确认后端服务正常运行：`docker-compose ps`
 2. 检查后端健康状态：`curl http://localhost:9528/v1/route/getConstantRoutes`
-3. 查看后端日志：`docker-compose -p soybean-admin-nest logs backend`
+3. 查看后端日志：`docker-compose logs backend`
 
 ### 4. 端口冲突
 
 **问题**：启动时提示端口被占用
 
 **解决方案**：
-修改 `docker-compose.yml` 中的端口映射：
-```yaml
-ports:
-  - "9527:80"      # 前端：改为其他端口，如 "8080:80"
-  - "9528:9528"    # 后端：改为其他端口，如 "8081:9528"
+创建或编辑项目根目录的 `.env` 文件，修改端口配置：
+```env
+# .env
+DATABASE_PORT=15432      # 修改数据库端口
+REDIS_PORT=16379         # 修改 Redis 端口
+APP_PORT=8528            # 修改后端端口
+FRONTEND_PORT=8527       # 修改前端端口
+```
+
+然后重启服务：
+```bash
+docker-compose down
+docker-compose up -d
 ```
 
 ### 5. 数据持久化
@@ -457,7 +561,7 @@ ports:
 **验证数据库变更**：
 ```bash
 # 查看表结构
-docker-compose -p soybean-admin-nest exec postgres psql -U soybean -d soybean-admin-nest-backend -c "\d+ sys_user"
+docker-compose exec postgres psql -U soybean -d soybean-admin-nest-backend -c "\d+ sys_user"
 ```
 
 ## 进阶主题
@@ -480,7 +584,13 @@ docker-compose -p soybean-admin-nest exec postgres psql -U soybean -d soybean-ad
 
 ## 技术文档
 
+### 项目文档
+
+- [Docker 环境变量配置指南](DOCKER_ENV_CONFIG.md) - 详细的 Docker Compose 配置说明
 - [Prisma 迁移问题分析](backend/docs/MIGRATION_ISSUES.md) - 数据库迁移的常见问题和解决方案
+
+### 官方文档
+
 - [NestJS 官方文档](https://nestjs.com/)
 - [Prisma 官方文档](https://www.prisma.io/docs/)
 - [Vue 3 官方文档](https://vuejs.org/)
