@@ -1,4 +1,4 @@
-name: ${COMPOSE_PROJECT_NAME:-soybean-admin-nest}
+name: sds-local
 
 services:
   # 添加数据库初始化服务
@@ -35,7 +35,7 @@ services:
         pnpm prisma db seed
       "
     networks:
-      - soybean-admin
+      - sds-local
 
   frontend:
     build:
@@ -49,7 +49,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-9527}:80"
     networks:
-      - soybean-admin
+      - sds-local
 
   backend:
     build:
@@ -85,7 +85,7 @@ services:
       - ./backend/Makefile:/usr/src/app/soybean/backend/Makefile
       - ./backend/scripts:/usr/src/app/soybean/backend/scripts
     networks:
-      - soybean-admin
+      - sds-local
     healthcheck:
       test:
         ["CMD", "curl", "-f", "http://backend:9528/v1/route/getConstantRoutes"]
@@ -105,10 +105,11 @@ services:
     ports:
       - "${DATABASE_PORT:-25432}:${DATABASE_INTERNAL_PORT:-5432}"
     volumes:
-      - soybean-admin-postgres_data:/usr/share/docker/postgresql
-      - ./deploy/postgres:/docker-entrypoint-initdb.d
+      - sds-local-postgres_data:/var/lib/postgresql/data
+      # 注意：开发模式不使用 deploy/postgres/*.sql
+      # 数据库结构由 db-init 服务通过 Prisma migrations 管理
     networks:
-      - soybean-admin
+      - sds-local
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-soybean} -d ${POSTGRES_DB:-soybean-admin-nest-backend}"]
       interval: 10s
@@ -117,8 +118,8 @@ services:
 
   pgbouncer:
     image: bitnami/pgbouncer:1.23.1
-    container_name: pgbouncer
-    hostname: pgbouncer
+    container_name: sds-local-pgbouncer
+    hostname: sds-local-pgbouncer
     restart: always
     environment:
       - PGBOUNCER_DATABASE=*
@@ -130,7 +131,7 @@ services:
     ports:
       - ${PGBOUNCER_PORT:-6432}:6432
     networks:
-      - soybean-admin
+      - sds-local
 
   redis:
     image: redis/redis-stack:7.2.0-v11
@@ -140,9 +141,9 @@ services:
     ports:
       - "${REDIS_PORT:-26379}:${REDIS_INTERNAL_PORT:-6379}"
     volumes:
-      - soybean-admin-redis_data:/data
+      - sds-local-redis_data:/data
     networks:
-      - soybean-admin
+      - sds-local
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-123456}", "ping"]
       interval: 10s
@@ -150,8 +151,8 @@ services:
       retries: 5
 
 volumes:
-  soybean-admin-postgres_data:
-  soybean-admin-redis_data:
+  sds-local-postgres_data:
+  sds-local-redis_data:
 
 networks:
-  soybean-admin:
+  sds-local:

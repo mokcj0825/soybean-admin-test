@@ -286,6 +286,7 @@ docker-compose exec backend env | grep DATABASE_URL
 ## 相关文档
 
 - [DOCKER_ENV_CONFIG.md](DOCKER_ENV_CONFIG.md) - 详细配置指南
+- [DOCKER_NETWORKING_PORTS.md](DOCKER_NETWORKING_PORTS.md) - **Docker 网络和端口配置详解**（必读）
 - [README.md](README.md) - 项目主文档
 - [env.docker.example](env.docker.example) - 配置示例文件
 

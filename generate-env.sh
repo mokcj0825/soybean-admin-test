@@ -109,7 +109,7 @@ case $choice in
 # ===========================================
 # Docker Compose 项目配置
 # ===========================================
-COMPOSE_PROJECT_NAME=soybean-admin-nest
+COMPOSE_PROJECT_NAME=sds-local
 
 # ===========================================
 # 数据库配置 (PostgreSQL)
@@ -173,6 +173,36 @@ EOF
         ;;
 esac
 
+# ================================================
+# 自动同步 backend/.env 文件
+# ================================================
+echo ""
+echo -e "${YELLOW}正在同步 backend/.env 配置...${NC}"
+
+# 从 .env 文件读取配置
+if [ -f ".env" ]; then
+    # 读取变量
+    export $(cat .env | grep -E "^(POSTGRES_USER|POSTGRES_PASSWORD|POSTGRES_DB|DATABASE_PORT)=" | xargs)
+    
+    # 生成 backend/.env
+    cat > backend/.env << EOF
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${DATABASE_PORT}/${POSTGRES_DB}?schema=public"
+#使用pgbouncer请打开以下注释
+#DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:6432/${POSTGRES_DB}?schema=public&pgbouncer=true"
+DIRECT_DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${DATABASE_PORT}/${POSTGRES_DB}?schema=public"
+EOF
+    
+    echo -e "${GREEN}✓ backend/.env 文件已自动同步${NC}"
+else
+    echo -e "${RED}✗ 无法找到 .env 文件，跳过 backend/.env 同步${NC}"
+fi
+
 echo ""
 echo -e "${GREEN}================================${NC}"
 echo -e "${GREEN}配置完成！${NC}"
@@ -188,6 +218,8 @@ echo "  1. 检查 .env 文件配置是否正确"
 echo "  2. 运行: docker-compose -p soybean-admin-nest up -d"
 echo "  3. 访问: http://localhost:${frontend_port:-9527}"
 echo ""
-echo -e "${YELLOW}提示: 如需修改配置，请编辑 .env 文件后重新运行 docker-compose${NC}"
+echo -e "${YELLOW}提示:${NC}"
+echo "  - 如需修改配置，请编辑 .env 文件后运行: docker-compose down && docker-compose up -d"
+echo "  - 理解端口配置: 查看 DOCKER_NETWORKING_PORTS.md"
 echo ""
 

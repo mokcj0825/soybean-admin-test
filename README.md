@@ -418,7 +418,9 @@ pnpm prisma:generate
 
 完整的配置参数列表请参考 `env.docker.example` 文件。
 
-> 📖 **详细文档**：查看 [Docker 环境变量配置指南](DOCKER_ENV_CONFIG.md) 了解更多配置细节、使用场景和故障排查。
+> 📖 **详细文档**：
+> - [Docker 环境变量配置指南](DOCKER_ENV_CONFIG.md) - 配置细节、使用场景和故障排查
+> - [Docker 网络和端口配置详解](DOCKER_NETWORKING_PORTS.md) - **必读！** 理解外部端口和内部端口的区别
 
 #### 配置示例
 

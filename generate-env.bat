@@ -98,7 +98,7 @@ if "%choice%"=="1" (
         echo # ===========================================
         echo # Docker Compose 项目配置
         echo # ===========================================
-        echo COMPOSE_PROJECT_NAME=soybean-admin-nest
+        echo COMPOSE_PROJECT_NAME=sds-local
         echo.
         echo # ===========================================
         echo # 数据库配置 (PostgreSQL^)
@@ -159,6 +159,40 @@ if "%choice%"=="1" (
     exit /b 1
 )
 
+REM ================================================
+REM 自动同步 backend/.env 文件
+REM ================================================
+echo.
+echo [进行中] 正在同步 backend\.env 配置...
+
+if exist ".env" (
+    REM 读取配置变量
+    for /f "tokens=1,2 delims==" %%a in ('findstr /r "^POSTGRES_USER= ^POSTGRES_PASSWORD= ^POSTGRES_DB= ^DATABASE_PORT=" .env') do (
+        if "%%a"=="POSTGRES_USER" set BE_USER=%%b
+        if "%%a"=="POSTGRES_PASSWORD" set BE_PASS=%%b
+        if "%%a"=="POSTGRES_DB" set BE_DB=%%b
+        if "%%a"=="DATABASE_PORT" set BE_PORT=%%b
+    )
+    
+    REM 生成 backend/.env
+    (
+        echo # Environment variables declared in this file are automatically made available to Prisma.
+        echo # See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+        echo.
+        echo # Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+        echo # See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+        echo.
+        echo DATABASE_URL="postgresql://!BE_USER!:!BE_PASS!@localhost:!BE_PORT!/!BE_DB!?schema=public"
+        echo #使用pgbouncer请打开以下注释
+        echo #DATABASE_URL="postgresql://!BE_USER!:!BE_PASS!@localhost:6432/!BE_DB!?schema=public&pgbouncer=true"
+        echo DIRECT_DATABASE_URL="postgresql://!BE_USER!:!BE_PASS!@localhost:!BE_PORT!/!BE_DB!?schema=public"
+    ) > backend\.env
+    
+    echo [完成] backend\.env 文件已自动同步
+) else (
+    echo [错误] 无法找到 .env 文件，跳过 backend\.env 同步
+)
+
 echo.
 echo ================================
 echo 配置完成！
@@ -178,7 +212,9 @@ if "%choice%"=="2" (
     echo   3. 访问: http://localhost:9527
 )
 echo.
-echo [提示] 如需修改配置，请编辑 .env 文件后重新运行 docker-compose
+echo [提示]
+echo   - 如需修改配置，请编辑 .env 文件后运行: docker-compose down ^&^& docker-compose up -d
+echo   - 理解端口配置: 查看 DOCKER_NETWORKING_PORTS.md
 echo.
 
 endlocal

@@ -1,0 +1,55 @@
+name: Check Demo SQL Sync
+
+# 检查 deploy/postgres/*.sql 是否与 Prisma migrations 同步
+# 防止开发者修改 Prisma schema 后忘记同步演示 SQL
+
+on:
+  pull_request:
+    paths:
+      - 'backend/prisma/schema.prisma'
+      - 'backend/prisma/migrations/**'
+      - 'deploy/postgres/**'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/prisma/schema.prisma'
+      - 'backend/prisma/migrations/**'
+      - 'deploy/postgres/**'
+
+jobs:
+  check-sync:
+    name: Verify Demo SQL is Synchronized
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pnpm install --frozen-lockfile
+      
+      - name: Check demo SQL sync status
+        run: |
+          chmod +x deploy/sync-from-prisma.sh
+          ./deploy/sync-from-prisma.sh --check
+      
+      - name: Remind to sync if failed
+        if: failure()
+        run: |
+          echo "::error::deploy/postgres/*.sql is out of sync with Prisma migrations!"
+          echo "::error::Please run: ./deploy/sync-from-prisma.sh"
+          echo "::error::Then commit the changes: git add deploy/postgres/ && git commit"
+

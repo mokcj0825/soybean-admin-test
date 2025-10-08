@@ -1,0 +1,106 @@
+# Docker Compose 配置 - 演示模式
+# 用途：快速演示、产品展示、非开发用途
+# 特点：5秒启动、预设数据、不持久化、固定结构
+# 
+# 启动命令：docker-compose -f docker-compose.demo.yml up -d
+# 停止命令：docker-compose -f docker-compose.demo.yml down
+
+name: sds-demo
+
+services:
+  postgres:
+    image: postgres:16.3
+    container_name: sds-demo-postgres
+    environment:
+      TZ: Asia/Shanghai
+      POSTGRES_PASSWORD: demo123
+      POSTGRES_USER: demo
+      POSTGRES_DB: sds-demo
+    ports:
+      - "25432:5432"
+    volumes:
+      # 使用 SQL 脚本快速初始化（仅演示模式）
+      - ./deploy/postgres:/docker-entrypoint-initdb.d
+      # 注意：不使用持久化卷，每次重启都是全新环境
+    networks:
+      - demo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d sds-demo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis/redis-stack:7.2.0-v11
+    container_name: sds-demo-redis
+    environment:
+      TZ: Asia/Shanghai
+    command: redis-server --requirepass demo123
+    ports:
+      - "26379:6379"
+    networks:
+      - demo
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "demo123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: backend/
+    container_name: sds-demo-backend
+    environment:
+      TZ: Asia/Shanghai
+      NODE_ENV: production
+      APP_PORT: 9528
+      DOC_SWAGGER_ENABLE: true
+      DOC_SWAGGER_PATH: api-docs
+      CASBIN_MODEL: model.conf
+      DATABASE_URL: "postgresql://demo:demo123@postgres:5432/sds-demo?schema=public"
+      DIRECT_DATABASE_URL: "postgresql://demo:demo123@postgres:5432/sds-demo?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: demo123
+      REDIS_DB: 1
+      JWT_SECRET: demo-jwt-secret-do-not-use-in-production
+      JWT_EXPIRE_IN: 3600
+      REFRESH_TOKEN_SECRET: demo-refresh-token-secret
+      REFRESH_TOKEN_EXPIRE_IN: 7200
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "9528:9528"
+    networks:
+      - demo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9528/v1/route/getConstantRoutes"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  frontend:
+    build:
+      context: frontend/
+    container_name: sds-demo-frontend
+    environment:
+      TZ: Asia/Shanghai
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "9527:80"
+    networks:
+      - demo
+
+networks:
+  demo:
+    name: sds-demo
+
+# 注意：没有定义 volumes，演示模式不持久化数据
+# 每次 docker-compose down 后再 up，都是全新的演示环境
+
