@@ -1,3 +1,5 @@
+name: ${COMPOSE_PROJECT_NAME:-soybean-admin-nest}
+
 services:
   # 添加数据库初始化服务
   db-init:
@@ -5,8 +7,8 @@ services:
       context: backend/
     environment:
       # 同 backend 的环境变量
-      DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
-      DIRECT_DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-soybean}:${POSTGRES_PASSWORD:-soybean@123.}@postgres:${DATABASE_INTERNAL_PORT:-5432}/${POSTGRES_DB:-soybean-admin-nest-backend}?schema=public"
+      DIRECT_DATABASE_URL: "postgresql://${POSTGRES_USER:-soybean}:${POSTGRES_PASSWORD:-soybean@123.}@postgres:${DATABASE_INTERNAL_PORT:-5432}/${POSTGRES_DB:-soybean-admin-nest-backend}?schema=public"
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,12 +42,12 @@ services:
       context: frontend/
     # image: soybean-admin-frontend:1.2.7
     environment:
-      TZ: Asia/Shanghai
+      TZ: ${TZ:-Asia/Shanghai}
     depends_on:
       backend:
         condition: service_healthy
     ports:
-      - "9527:80"
+      - "${FRONTEND_PORT:-9527}:80"
     networks:
       - soybean-admin
 
@@ -54,29 +56,29 @@ services:
       context: backend/
     # image: soybean-admin-backend:0.0.1
     environment:
-      TZ: Asia/Shanghai
-      CASBIN_MODEL: "model.conf"
-      NODE_ENV: production
-      APP_PORT: 9528
-      DOC_SWAGGER_ENABLE: "true"
-      DOC_SWAGGER_PATH: "api-docs"
-      DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
-      DIRECT_DATABASE_URL: "postgresql://soybean:soybean@123.@postgres:5432/soybean-admin-nest-backend?schema=public"
+      TZ: ${TZ:-Asia/Shanghai}
+      CASBIN_MODEL: ${CASBIN_MODEL:-model.conf}
+      NODE_ENV: ${NODE_ENV:-production}
+      APP_PORT: ${BACKEND_PORT:-9528}
+      DOC_SWAGGER_ENABLE: ${DOC_SWAGGER_ENABLE:-true}
+      DOC_SWAGGER_PATH: ${DOC_SWAGGER_PATH:-api-docs}
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-soybean}:${POSTGRES_PASSWORD:-soybean@123.}@postgres:${DATABASE_INTERNAL_PORT:-5432}/${POSTGRES_DB:-soybean-admin-nest-backend}?schema=public"
+      DIRECT_DATABASE_URL: "postgresql://${POSTGRES_USER:-soybean}:${POSTGRES_PASSWORD:-soybean@123.}@postgres:${DATABASE_INTERNAL_PORT:-5432}/${POSTGRES_DB:-soybean-admin-nest-backend}?schema=public"
       REDIS_HOST: "redis"
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: "123456"
-      REDIS_DB: 1
-      JWT_SECRET: "JWT_SECRET-soybean-admin-nest@123456!@#."
-      JWT_EXPIRE_IN: 3600
-      REFRESH_TOKEN_SECRET: "REFRESH_TOKEN_EXPIRE_IN-soybean-admin-nest@123456!@#."
-      REFRESH_TOKEN_EXPIRE_IN: 7200
+      REDIS_PORT: ${REDIS_INTERNAL_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-123456}
+      REDIS_DB: ${REDIS_DB:-1}
+      JWT_SECRET: ${JWT_SECRET:-JWT_SECRET-soybean-admin-nest@123456!@#.}
+      JWT_EXPIRE_IN: ${JWT_EXPIRE_IN:-3600}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-REFRESH_TOKEN_EXPIRE_IN-soybean-admin-nest@123456!@#.}
+      REFRESH_TOKEN_EXPIRE_IN: ${REFRESH_TOKEN_EXPIRE_IN:-7200}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     ports:
-      - "9528:9528"
+      - "${BACKEND_PORT:-9528}:${BACKEND_PORT:-9528}"
     volumes:
       # 挂载 prisma 目录以支持 schema 变更
       - ./backend/prisma:/usr/src/app/soybean/backend/prisma
@@ -96,19 +98,19 @@ services:
   postgres:
     image: postgres:16.3
     environment:
-      TZ: Asia/Shanghai
-      POSTGRES_PASSWORD: soybean@123.
-      POSTGRES_USER: soybean
-      POSTGRES_DB: soybean-admin-nest-backend
+      TZ: ${TZ:-Asia/Shanghai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-soybean@123.}
+      POSTGRES_USER: ${POSTGRES_USER:-soybean}
+      POSTGRES_DB: ${POSTGRES_DB:-soybean-admin-nest-backend}
     ports:
-      - "25432:5432"
+      - "${DATABASE_PORT:-25432}:${DATABASE_INTERNAL_PORT:-5432}"
     volumes:
       - soybean-admin-postgres_data:/usr/share/docker/postgresql
       - ./deploy/postgres:/docker-entrypoint-initdb.d
     networks:
       - soybean-admin
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U soybean -d soybean-admin-nest-backend"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-soybean} -d ${POSTGRES_DB:-soybean-admin-nest-backend}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -120,29 +122,29 @@ services:
     restart: always
     environment:
       - PGBOUNCER_DATABASE=*
-      - POSTGRESQL_USERNAME=soybean
-      - POSTGRESQL_PASSWORD=soybean@123.
-      - POSTGRESQL_DATABASE=soybean-admin-nest-backend
+      - POSTGRESQL_USERNAME=${POSTGRES_USER:-soybean}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-soybean@123.}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB:-soybean-admin-nest-backend}
       - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_PORT=${DATABASE_INTERNAL_PORT:-5432}
     ports:
-      - 6432:6432
+      - ${PGBOUNCER_PORT:-6432}:6432
     networks:
       - soybean-admin
 
   redis:
     image: redis/redis-stack:7.2.0-v11
     environment:
-      TZ: Asia/Shanghai
-    command: redis-server --requirepass 123456
+      TZ: ${TZ:-Asia/Shanghai}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-123456}
     ports:
-      - "26379:6379"
+      - "${REDIS_PORT:-26379}:${REDIS_INTERNAL_PORT:-6379}"
     volumes:
       - soybean-admin-redis_data:/data
     networks:
       - soybean-admin
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "123456", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-123456}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
