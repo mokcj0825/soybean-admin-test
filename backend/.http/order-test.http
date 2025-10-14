@@ -1,0 +1,87 @@
+### 创建订单并支付 - 完整测试
+
+@host=http://localhost:9528
+
+### 1. 基本订单测试（单个商品）
+POST {{host}}/v1/order/create-with-payment
+Content-Type: application/json
+
+{
+  "userId": "user_test_001",
+  "items": [
+    {
+      "productId": "prod_001",
+      "skuId": "sku_001",
+      "quantity": 2
+    }
+  ],
+  "shippingAddressId": "addr_456",
+  "couponCode": "SUMMER2024",
+  "paymentMethod": "wechat_pay",
+  "remark": "请在下午送达"
+}
+
+### 2. 多商品订单测试
+POST {{host}}/v1/order/create-with-payment
+Content-Type: application/json
+
+{
+  "userId": "user_test_002",
+  "items": [
+    {
+      "productId": "prod_001",
+      "skuId": "sku_001",
+      "quantity": 2
+    },
+    {
+      "productId": "prod_002",
+      "skuId": "sku_002",
+      "quantity": 1
+    },
+    {
+      "productId": "prod_003",
+      "skuId": "sku_003",
+      "quantity": 3
+    }
+  ],
+  "shippingAddressId": "addr_789",
+  "couponCode": "WINTER2024",
+  "paymentMethod": "alipay",
+  "remark": "包装精美一点"
+}
+
+### 3. 不使用优惠券的订单
+POST {{host}}/v1/order/create-with-payment
+Content-Type: application/json
+
+{
+  "userId": "user_test_003",
+  "items": [
+    {
+      "productId": "prod_005",
+      "skuId": "sku_005",
+      "quantity": 1
+    }
+  ],
+  "shippingAddressId": "addr_123",
+  "paymentMethod": "wechat_pay"
+}
+
+### 4. 大额订单测试（触发免运费）
+POST {{host}}/v1/order/create-with-payment
+Content-Type: application/json
+
+{
+  "userId": "user_test_004",
+  "items": [
+    {
+      "productId": "prod_premium_001",
+      "skuId": "sku_premium_001",
+      "quantity": 5
+    }
+  ],
+  "shippingAddressId": "addr_premium",
+  "paymentMethod": "wechat_pay",
+  "remark": "VIP客户，请优先处理"
+}
+
