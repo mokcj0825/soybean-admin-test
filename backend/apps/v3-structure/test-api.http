@@ -1,0 +1,27 @@
+### V3 DDD Architecture - 创建订单并发起支付
+
+POST http://localhost:9529/v3/api/order/create-with-payment
+Content-Type: application/json
+
+{
+  "userId": "user_001",
+  "items": [
+    {
+      "productId": "prod_001",
+      "skuId": "sku_001",
+      "quantity": 2
+    },
+    {
+      "productId": "prod_002",
+      "skuId": "sku_002",
+      "quantity": 1
+    }
+  ],
+  "shippingAddressId": "addr_456",
+  "paymentMethod": "wechat_pay",
+  "couponCode": "SUMMER2024",
+  "remark": "测试订单 - V3 DDD Architecture"
+}
+
+###
+

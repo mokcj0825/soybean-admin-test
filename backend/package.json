@@ -27,7 +27,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/base-system/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/base-system/test/jest-e2e.json",
+    "find-handler": "node scripts/find-handler.js",
+    "list-handlers": "node scripts/list-all-handlers.js"
   },
   "dependencies": {
     "@fastify/compress": "^8.0.3",

@@ -1,0 +1,9 @@
+{
+  "name": "v3-structure",
+  "version": "1.0.0",
+  "description": "V3 Pure DDD Architecture",
+  "scripts": {
+    "start": "nest start --watch"
+  }
+}
+

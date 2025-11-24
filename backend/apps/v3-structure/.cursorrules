@@ -1,0 +1,30 @@
+# V3 DDD Architecture - 真正可运行的 API ✅
+
+## 快速启动
+
+```bash
+cd backend
+nest start v3-structure --watch
+```
+
+## API 测试
+
+```bash
+curl -X POST http://localhost:9529/v3/api/order/create-with-payment \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"user_001","items":[{"productId":"prod_001","skuId":"sku_001","quantity":2}],"shippingAddressId":"addr_456","paymentMethod":"wechat_pay"}'
+```
+
+## 核心文件
+
+- ✅ `src/main.ts` - NestJS 启动入口
+- ✅ `src/order.module.ts` - 依赖注入配置
+- ✅ `src/api/order/rest/order.controller.ts` - HTTP 控制器
+- ✅ `test-api.http` - API 测试文件
+
+## 完整文档
+
+- `README_API.md` - API 运行说明 ⭐⭐⭐
+- `RUN.md` - 详细运行步骤
+- `START_HERE.md` - 完整总览
+
